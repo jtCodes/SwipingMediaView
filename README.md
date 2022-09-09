@@ -2,6 +2,12 @@
 
 https://user-images.githubusercontent.com/23707104/189459481-2fa4bc93-022c-49be-837b-b06dc9f86fcb.mp4
 
+### Features
+- High performance media swiping
+- Supports images, gifs and videos
+- Pinch to zoom
+- Drag to dismiss
+
 ### Example
 ```Swift
 
