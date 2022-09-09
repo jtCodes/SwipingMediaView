@@ -6,6 +6,10 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
     public typealias UIViewControllerType = UIPageViewController
     var controllers: [UIViewController] = []
     
+    public init(controllers: [UIViewController] = []) {
+        self.controllers = controllers
+    }
+    
     public func makeCoordinator() -> Coordinator {
         return Coordinator(self)
     }
@@ -67,6 +71,8 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
 }
 
 public struct BackgroundCleanerView: UIViewRepresentable {
+    public init() {}
+    
     public func makeUIView(context: Context) -> UIView {
         let view = UIView()
         DispatchQueue.main.async {
