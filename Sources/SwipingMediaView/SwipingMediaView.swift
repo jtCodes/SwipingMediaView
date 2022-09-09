@@ -130,11 +130,9 @@ public struct SwipingMediaItemView: View {
                         .loop(true)
                         .playbackControls(true)
                         .onAppear() {
-                            print("onappear, video")
                             isPlaying = true
                         }
                         .onDisappear() {
-                            print("ondisappear, video")
                             isPlaying = false
                         }
                 }
@@ -287,7 +285,6 @@ struct DraggableView<Content: View>: UIViewRepresentable {
         
         func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
             if let panGesture = gestureRecognizer as? UIPanGestureRecognizer {
-                print(panGesture.translation(in: hostingController.view))
                 let translation = panGesture.translation(in: hostingController.view)
                 return translation.x == 0
             }
