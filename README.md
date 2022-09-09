@@ -7,7 +7,6 @@ import SwiftUI
 import SwipingMediaView
 
 struct ContentView: View {
-    @State var yOffset: CGFloat = 0
     @State var isPresented: Bool = false
     
     var body: some View {
