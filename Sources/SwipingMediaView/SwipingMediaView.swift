@@ -13,7 +13,7 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
     public class Coordinator: NSObject, UIPageViewControllerDataSource {
         let parent: SwipingMediaView
         
-        init(_ parent: SwipingMediaView) {
+        public init(_ parent: SwipingMediaView) {
             self.parent = parent
         }
         
