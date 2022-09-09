@@ -17,7 +17,7 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
             self.parent = parent
         }
         
-        public func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        public func pageViewController(_ pageViewCo ntroller: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
             guard let index = self.parent.controllers.firstIndex(of: viewController) else { return nil }
             if index == 0 {
                 let vc = self.parent.controllers.last
@@ -83,6 +83,11 @@ public enum SwipingMediaItemFormatType {
 }
 
 public struct SwipingMediaItem {
+   public init(url: String, type: SwipingMediaItemFormatType) {
+        self.url = url
+        self.type = type
+    }
+    
     let url: String
     let type: SwipingMediaItemFormatType
 }
