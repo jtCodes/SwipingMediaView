@@ -1,5 +1,7 @@
 # SwipingMediaView
 
+https://user-images.githubusercontent.com/23707104/189459481-2fa4bc93-022c-49be-837b-b06dc9f86fcb.mp4
+
 ### Example
 ```Swift
 
