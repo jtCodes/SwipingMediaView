@@ -1,14 +1,19 @@
 import SwiftUI
+import UIKit
 import SVEVideoUI
 import SDWebImageSwiftUI
 
 public struct SwipingMediaView: UIViewControllerRepresentable {
     public typealias UIViewControllerType = UIPageViewController
+    @Binding var currentIndex: Int
     var controllers: [UIViewController] = []
     var startingIndex: Int = 0
     
-    public init(controllers: [UIViewController] = [], startingIndex: Int = 0) {
-        self.controllers = controllers
+    public init(controllers: [AnyView] = [],
+                currentIndex: Binding<Int>,
+                startingIndex: Int = 0) {
+        self.controllers = controllers.map {UIHostingController(rootView: $0)}
+        self._currentIndex = currentIndex
         self.startingIndex = startingIndex
     }
     
@@ -16,7 +21,7 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
         return Coordinator(self)
     }
     
-    public class Coordinator: NSObject, UIPageViewControllerDataSource {
+    public class Coordinator: NSObject, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
         let parent: SwipingMediaView
         
         public init(_ parent: SwipingMediaView) {
@@ -52,23 +57,37 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
             vc.view.backgroundColor = .clear
             return vc
         }
+        
+        public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+            guard completed else { return }
+            if let viewControllerIndex = parent.controllers.firstIndex(of: pageViewController.viewControllers!.first!) {
+                parent.currentIndex = viewControllerIndex
+                print(viewControllerIndex)
+            }
+        }
     }
     
     public func makeUIViewController(context: Context) -> UIPageViewController {
+        // setup the pageviewcontroller
         let pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
         pageViewController.providesPresentationContextTransitionStyle = true
         pageViewController.definesPresentationContext = true
         pageViewController.dataSource = context.coordinator
+        pageViewController.delegate = context.coordinator
         pageViewController.view.frame = UIScreen.main.bounds
         pageViewController.view.backgroundColor = .clear
+        
+        // add the initial pageview item
+        let vc = controllers[startingIndex]
+        vc.view.frame = UIScreen.main.bounds
+        vc.view.backgroundColor = .clear
+        pageViewController.setViewControllers([vc], direction: .forward, animated: true)
+        
         return pageViewController
     }
     
     public func updateUIViewController(_ uiViewController: UIPageViewController, context: Context) {
-        let vc = controllers[startingIndex]
-        vc.view.frame = UIScreen.main.bounds
-        vc.view.backgroundColor = .clear
-        uiViewController.setViewControllers([vc], direction: .forward, animated: true)
+        
     }
 }
 
@@ -82,7 +101,7 @@ public struct BackgroundCleanerView: UIViewRepresentable {
         }
         return view
     }
-
+    
     public func updateUIView(_ uiView: UIView, context: Context) {}
 }
 
@@ -91,26 +110,36 @@ public enum SwipingMediaItemFormatType {
 }
 
 public struct SwipingMediaItem {
-    public init(url: String, type: SwipingMediaItemFormatType) {
-        self.url = url
-        self.type = type
-    }
+    public init(
+        id: String = "",
+        url: String,
+        type: SwipingMediaItemFormatType,
+        title: String = "",
+        description: String = "") {
+            self.id = id
+            self.url = url
+            self.type = type
+            self.title = title
+            self.description = description
+        }
     
+    let id: String
     let url: String
     let type: SwipingMediaItemFormatType
+    let title: String
+    let description: String
 }
 
 public struct SwipingMediaItemView: View {
+    @Environment(\.presentationMode) var presentationMode
+    
     @State var yOffset: CGFloat = 0
     @State var isPlaying: Bool = false
-    @Binding var isPresented: Bool
-    
+    @State var isPresented: Bool = true
     var mediaItem: SwipingMediaItem
     
-    public init(mediaItem: SwipingMediaItem,
-         isPresented: Binding<Bool>) {
+    public init(mediaItem: SwipingMediaItem) {
         self.mediaItem = mediaItem
-        self._isPresented = isPresented
     }
     
     public var body: some View {
@@ -138,6 +167,11 @@ public struct SwipingMediaItemView: View {
                             isPlaying = false
                         }
                 }
+            }
+        }
+        .onChange(of: isPresented) { newValue in
+            if (isPresented == false) {
+                presentationMode.wrappedValue.dismiss()
             }
         }
         .ignoresSafeArea(.all)
@@ -253,7 +287,7 @@ struct DraggableView<Content: View>: UIViewRepresentable {
         
         @objc func didDrag(gesture: UIPanGestureRecognizer) {
             let translation = gesture.translation(in: hostingController.view)
-          
+            
             if gesture.state == .began {
                 initialCenter = hostingController.view.center
             }
