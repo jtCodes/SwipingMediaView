@@ -5,9 +5,11 @@ import SDWebImageSwiftUI
 public struct SwipingMediaView: UIViewControllerRepresentable {
     public typealias UIViewControllerType = UIPageViewController
     var controllers: [UIViewController] = []
+    var startingIndex: Int = 0
     
-    public init(controllers: [UIViewController] = []) {
+    public init(controllers: [UIViewController] = [], startingIndex: Int = 0) {
         self.controllers = controllers
+        self.startingIndex = startingIndex
     }
     
     public func makeCoordinator() -> Coordinator {
@@ -63,7 +65,7 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
     }
     
     public func updateUIViewController(_ uiViewController: UIPageViewController, context: Context) {
-        let vc = controllers[0]
+        let vc = controllers[startingIndex]
         vc.view.frame = UIScreen.main.bounds
         vc.view.backgroundColor = .clear
         uiViewController.setViewControllers([vc], direction: .forward, animated: true)
