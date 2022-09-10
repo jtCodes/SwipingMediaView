@@ -16,6 +16,7 @@ https://user-images.githubusercontent.com/23707104/189459481-2fa4bc93-022c-49be-
 import SwiftUI
 import SwipingMediaView
 
+
 struct ContentView: View {
     @State var isPresented: Bool = false
     
@@ -35,7 +36,8 @@ struct ContentView: View {
                                                                    type: .image),
                                                          SwipingMediaItem(url: "https://preview.redd.it/g232r4ymm4l91.gif?format=mp4&s=91cc39ae920fb57e3273aca59f4e273d974e1253",
                                                                    type: .video)].map { UIHostingController(rootView: SwipingMediaItemView(mediaItem: $0,
-                                                                                                                            isPresented: self.$isPresented))})
+                                                                                                                                           isPresented: self.$isPresented))},
+                                 startingIndex: 1)
             }
             .background(BackgroundCleanerView())
             .ignoresSafeArea(.all)
