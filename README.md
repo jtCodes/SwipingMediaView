@@ -42,20 +42,18 @@ struct ContentView: View {
             }.padding(100)
         }
         .background(Color.blue)
+        // FullScreenCover works well in presenting SwipingMediaView
         .fullScreenCover(isPresented: $isPresented) {
             ZStack{
                 SwipingMediaView(controllers: controllers,
                                  currentIndex: $currentIndex,
-                                 startingIndex: 1)
+                                 startingIndex: currentIndex)
             }
+            // Adding a clear background helper here to achieve on drag fading background effect
             .background(BackgroundCleanerView())
+            // Ignoring safe area so pinch to zoom don't get cut off
             .ignoresSafeArea(.all)
         }
-        .transaction({ transaction in
-            if (!isPresented) {
-                transaction.disablesAnimations = true
-            }
-        })
         .ignoresSafeArea(.all)
     }
 }
@@ -68,7 +66,7 @@ struct ContentView: View {
     @State var currentIndex: Int = 1
     var images: [String] = []
     var controllers: [AnyView] = []
-    
+
     init() {
         for i in 0..<64 {
             images.append("https://picsum.photos/250?image=" + String(i))
@@ -79,7 +77,7 @@ struct ContentView: View {
             )))
         }
     }
-    
+
     var body: some View {
         ZStack {
             Color.green.opacity(0.5)
@@ -87,6 +85,9 @@ struct ContentView: View {
                 Text("Current index: " + String(currentIndex))
                 Spacer()
             }.padding(100)
+
+            // Horizontal scrolled image view.
+            // This is responsible for bringing up the full screen SwipingMediaView.
             ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
@@ -101,6 +102,7 @@ struct ContentView: View {
                                     isPresented = true
                                 }
                         }
+                        // Scrolling the view to the image that's being shown on SwipingMediaView
                         .onChange(of: currentIndex) { newIndex in
                             proxy.scrollTo(newIndex, anchor: .top)
                         }
@@ -108,20 +110,18 @@ struct ContentView: View {
                 }
             }
         }
+        // FullScreenCover works well in presenting SwipingMediaView
         .fullScreenCover(isPresented: $isPresented) {
             ZStack{
                 SwipingMediaView(controllers: controllers,
                                  currentIndex: $currentIndex,
                                  startingIndex: currentIndex)
             }
+            // Adding a clear background helper here to achieve on drag fading background effect
             .background(BackgroundCleanerView())
+            // Ignoring safe area so pinch to zoom don't get cut off
             .ignoresSafeArea(.all)
         }
-        .transaction({ transaction in
-            if (!isPresented) {
-                transaction.disablesAnimations = true
-            }
-        })
         .ignoresSafeArea(.all)
     }
 }

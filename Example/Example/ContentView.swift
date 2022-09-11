@@ -1,13 +1,12 @@
 import SwiftUI
 import SDWebImageSwiftUI
-import SwipingMediaView
 
 struct ContentView: View {
     @State var isPresented: Bool = false
     @State var currentIndex: Int = 1
     var images: [String] = []
     var controllers: [AnyView] = []
-    
+
     init() {
         for i in 0..<64 {
             images.append("https://picsum.photos/250?image=" + String(i))
@@ -18,7 +17,7 @@ struct ContentView: View {
             )))
         }
     }
-    
+
     var body: some View {
         ZStack {
             Color.green.opacity(0.5)
@@ -26,6 +25,9 @@ struct ContentView: View {
                 Text("Current index: " + String(currentIndex))
                 Spacer()
             }.padding(100)
+
+            // Horizontal scrolled image view.
+            // This is responsible for bringing up the full screen SwipingMediaView.
             ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
@@ -40,6 +42,7 @@ struct ContentView: View {
                                     isPresented = true
                                 }
                         }
+                        // Scrolling the view to the image that's being shown on SwipingMediaView
                         .onChange(of: currentIndex) { newIndex in
                             proxy.scrollTo(newIndex, anchor: .top)
                         }
@@ -47,23 +50,18 @@ struct ContentView: View {
                 }
             }
         }
+        // FullScreenCover works well in presenting SwipingMediaView
         .fullScreenCover(isPresented: $isPresented) {
             ZStack{
                 SwipingMediaView(controllers: controllers,
                                  currentIndex: $currentIndex,
                                  startingIndex: currentIndex)
-                .onTapGesture {
-                    print("tap")
-                }
             }
+            // Adding a clear background helper here to achieve on drag fading background effect
             .background(BackgroundCleanerView())
+            // Ignoring safe area so pinch to zoom don't get cut off
             .ignoresSafeArea(.all)
         }
-        .transaction({ transaction in
-            if (!isPresented) {
-                transaction.disablesAnimations = true
-            }
-        })
         .ignoresSafeArea(.all)
     }
 }
@@ -78,7 +76,7 @@ struct ContentView: View {
 //        self.controllers =  [AnyView(SwipingMediaItemView(mediaItem: SwipingMediaItem(url: "https://i.redd.it/8t6vk567khm91.jpg",
 //                                                                                      type: .image))),
 //                             AnyView(SwipingMediaItemView(mediaItem: SwipingMediaItem(url: "https://i.redd.it/gczavw14bfm91.gif",
-//                                                                                      type: .image))),
+//                                                                                      type: .gif))),
 //                             AnyView(SwipingMediaItemView(mediaItem: SwipingMediaItem(url: "https://preview.redd.it/g232r4ymm4l91.gif?format=mp4&s=91cc39ae920fb57e3273aca59f4e273d974e1253",
 //                                                                                      type: .video)))]
 //    }
@@ -95,23 +93,18 @@ struct ContentView: View {
 //            }.padding(100)
 //        }
 //        .background(Color.blue)
+//        // FullScreenCover works well in presenting SwipingMediaView
 //        .fullScreenCover(isPresented: $isPresented) {
 //            ZStack{
 //                SwipingMediaView(controllers: controllers,
 //                                 currentIndex: $currentIndex,
-//                                 startingIndex: 1)
-//                .onTapGesture {
-//                    print("tap")
-//                }
+//                                 startingIndex: currentIndex)
 //            }
+//            // Adding a clear background helper here to achieve on drag fading background effect
 //            .background(BackgroundCleanerView())
+//            // Ignoring safe area so pinch to zoom don't get cut off
 //            .ignoresSafeArea(.all)
 //        }
-//        .transaction({ transaction in
-//            if (!isPresented) {
-//                transaction.disablesAnimations = true
-//            }
-//        })
 //        .ignoresSafeArea(.all)
 //    }
 //}
