@@ -1,5 +1,6 @@
 import SwiftUI
 import SDWebImageSwiftUI
+import SwipingMediaView
 
 struct ContentView: View {
     @State var isPresented: Bool = false
