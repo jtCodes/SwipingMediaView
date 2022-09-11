@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 import SVEVideoUI
 import SDWebImageSwiftUI
+import Kingfisher
 
 public struct SwipingMediaView: UIViewControllerRepresentable {
     public typealias UIViewControllerType = UIPageViewController
@@ -97,7 +98,7 @@ class SwipingMediaViewSettings: ObservableObject {
 }
 
 public enum SwipingMediaItemFormatType {
-    case video, image
+    case video, image, gif
 }
 
 public struct SwipingMediaItem {
@@ -105,10 +106,12 @@ public struct SwipingMediaItem {
         id: String = "",
         url: String,
         type: SwipingMediaItemFormatType,
+        placeHolder: String = "",
         title: String = "",
         description: String = "") {
             self.id = id
             self.url = url
+            self.placeHolder = placeHolder
             self.type = type
             self.title = title
             self.description = description
@@ -116,6 +119,7 @@ public struct SwipingMediaItem {
     
     let id: String
     let url: String
+    let placeHolder: String
     let type: SwipingMediaItemFormatType
     let title: String
     let description: String
@@ -128,6 +132,7 @@ public struct SwipingMediaItemView: View {
     @State var yOffset: CGFloat = 0
     @State var isPlaying: Bool = false
     @State var isPresented: Bool = true
+    @State var isLoadingError: Bool = false
     var mediaItem: SwipingMediaItem
     
     public init(mediaItem: SwipingMediaItem,
@@ -144,21 +149,50 @@ public struct SwipingMediaItemView: View {
                 
                 if mediaItem.type == .image {
                     ZoomableScrollView {
-                        if (verifyUrl(urlString: mediaItem.url) == true) {
-                            AnimatedImage(url: URL(string: mediaItem.url))
-                                .onFailure { _ in
-                                   
+                        KFImage(URL(string: mediaItem.url))
+                            .cancelOnDisappear(true)
+                            .placeholder {
+                                VStack {
+                                    if (isLoadingError) {
+                                        Text("Error loading image")
+                                            .font(.title)
+                                    } else {
+                                        Image(systemName: "arrow.2.circlepath.circle")
+                                            .font(.largeTitle)
+                                            .opacity(0.3)
+                                        Text("Loading...")
+                                            .font(.title)
+                                    }
                                 }
-                                .resizable()
-                                .indicator(SDWebImageProgressIndicator.default) // UIKit indicator component
-                                .scaledToFit()
-                        } else {
-                            AnimatedImage(url: URL(string: "https://via.placeholder.com/72x72.jpg"))
-                                .resizable()
-                                .indicator(SDWebImageProgressIndicator.default) // UIKit indicator component
-                                .scaledToFit()
-                        }
+                            }
+                            .onFailure { e in
+                                isLoadingError = true
+                                print("Error \(e)")
+                            }
+                            .resizable()
+                            .scaledToFit()
                     }
+                } else if mediaItem.type == .gif {
+                    AnimatedImage(url: URL(string: mediaItem.url))
+                        .placeholder() {
+                            VStack {
+                                if (isLoadingError) {
+                                    Text("Error loading image")
+                                        .font(.title)
+                                } else {
+                                    Image(systemName: "arrow.2.circlepath.circle")
+                                        .font(.largeTitle)
+                                        .opacity(0.3)
+                                    Text("Loading...")
+                                        .font(.title)
+                                }
+                            }
+                        }
+                        .onFailure() {_ in
+                            isLoadingError = true
+                        }
+                        .resizable()
+                        .scaledToFit()
                 } else {
                     Video(url: URL(string: mediaItem.url)!)
                         .isPlaying($isPlaying)
