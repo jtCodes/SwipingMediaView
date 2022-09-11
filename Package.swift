@@ -26,7 +26,8 @@ let package = Package(
             name: "SwipingMediaView",
             dependencies: [
                 .product(name: "SDWebImageSwiftUI", package: "SDWebImageSwiftUI"),
-                .product(name: "SVEVideoUI", package: "SVEVideoUI")
+                .product(name: "SVEVideoUI", package: "SVEVideoUI"),
+                .product(name: "Kingfisher", package: "Kingfisher")
             ]),
         .testTarget(
             name: "SwipingMediaViewTests",
