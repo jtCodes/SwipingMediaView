@@ -13,7 +13,9 @@ struct ContentView: View {
             images.append("https://picsum.photos/250?image=" + String(i))
             controllers.append(AnyView(SwipingMediaItemView(mediaItem: SwipingMediaItem(url: "https://picsum.photos/250?image=" + String(i),
                                                                                         type: .image,
-                                                                                        title: "haah"))))
+                                                                                        title: "Image " + String(i)),
+                                                            shouldShowDownloadButton: true
+            )))
         }
     }
     

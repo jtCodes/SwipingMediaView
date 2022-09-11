@@ -12,8 +12,8 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
     public init(controllers: [AnyView] = [],
                 currentIndex: Binding<Int>,
                 startingIndex: Int = 0) {
-        self.controllers = controllers.map {UIHostingController(rootView: $0)}
         self._currentIndex = currentIndex
+        self.controllers = controllers.map {UIHostingController(rootView: $0)}
         self.startingIndex = startingIndex
     }
     
@@ -62,7 +62,6 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
             guard completed else { return }
             if let viewControllerIndex = parent.controllers.firstIndex(of: pageViewController.viewControllers!.first!) {
                 parent.currentIndex = viewControllerIndex
-                print(viewControllerIndex)
             }
         }
     }
@@ -91,18 +90,10 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
     }
 }
 
-public struct BackgroundCleanerView: UIViewRepresentable {
-    public init() {}
-    
-    public func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        DispatchQueue.main.async {
-            view.superview?.superview?.backgroundColor = .clear
-        }
-        return view
-    }
-    
-    public func updateUIView(_ uiView: UIView, context: Context) {}
+class SwipingMediaViewSettings: ObservableObject {
+    static let shared: SwipingMediaViewSettings = SwipingMediaViewSettings()
+    @Published var isControlsVisible: Bool = false
+    var shouldShowDownloadButton: Bool = false
 }
 
 public enum SwipingMediaItemFormatType {
@@ -132,14 +123,17 @@ public struct SwipingMediaItem {
 
 public struct SwipingMediaItemView: View {
     @Environment(\.presentationMode) var presentationMode
+    @ObservedObject var swipingMediaViewSettings: SwipingMediaViewSettings = SwipingMediaViewSettings.shared
     
     @State var yOffset: CGFloat = 0
     @State var isPlaying: Bool = false
     @State var isPresented: Bool = true
     var mediaItem: SwipingMediaItem
     
-    public init(mediaItem: SwipingMediaItem) {
+    public init(mediaItem: SwipingMediaItem,
+                shouldShowDownloadButton: Bool = false ) {
         self.mediaItem = mediaItem
+        swipingMediaViewSettings.shouldShowDownloadButton = shouldShowDownloadButton
     }
     
     public var body: some View {
@@ -168,13 +162,100 @@ public struct SwipingMediaItemView: View {
                         }
                 }
             }
+            
+            if (swipingMediaViewSettings.isControlsVisible == true) {
+                SwipingMediaItemViewControlsView(mediaItem: mediaItem)
+                    .opacity((1 - yOffset) * 1.2)
+            }
         }
         .onChange(of: isPresented) { newValue in
             if (isPresented == false) {
+                swipingMediaViewSettings.isControlsVisible = false
                 presentationMode.wrappedValue.dismiss()
             }
         }
+        .onTapGesture {
+            withAnimation(.easeInOut) { swipingMediaViewSettings.isControlsVisible.toggle() }
+        }
         .ignoresSafeArea(.all)
+    }
+}
+
+public struct SwipingMediaItemViewControlsView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.safeAreaInsets) private var safeAreaInsets
+    var swipingMediaViewSettings: SwipingMediaViewSettings = SwipingMediaViewSettings.shared
+    var mediaItem: SwipingMediaItem
+    
+    public init(mediaItem: SwipingMediaItem) {
+        self.mediaItem = mediaItem
+    }
+    
+    public var body: some View {
+        VStack() {
+            HStack(alignment: .center) {
+                HStack(alignment: .center) {
+                    Button {
+                        swipingMediaViewSettings.isControlsVisible = false
+                        presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Image(systemName: "x.circle.fill")
+                            .foregroundColor(Color.gray)
+                            .font(.system(size: 24))
+                            .padding(5)
+                    }
+                    .frame(width: 25, height: 25, alignment: .center)
+                    Spacer()
+                    Text(mediaItem.title)
+                        .lineLimit(nil)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                    Spacer()
+                    if (swipingMediaViewSettings.shouldShowDownloadButton == true && mediaItem.type != .video) {
+                        Button {
+                            SDWebImageManager.shared.loadImage(
+                                with: URL(string: mediaItem.url),
+                                options: .continueInBackground, // or .highPriority
+                                progress: nil,
+                                completed: {(image, data, error, cacheType, finished, url) in
+                                    
+                                    if let err = error {
+                                        // Do something with the error
+                                        print(err)
+                                        return
+                                    }
+                                    
+                                    guard let img = image else {
+                                        
+                                        // No image handle this error
+                                        return
+                                    }
+                                    
+                                    // Do something with image
+                                    let imageSaver = ImageSaver()
+                                    imageSaver.writeToPhotoAlbum(image: img)
+                                    imageSaver.successHandler = {
+                                        
+                                    }
+                                }
+                            )
+                        } label: {
+                            Image(systemName: "tray.and.arrow.down.fill")
+                                .foregroundColor(Color.gray)
+                                .font(.system(size: 18))
+                                .padding(5)
+                        }
+                    }
+                }
+                .padding(.leading, 15)
+                .padding(.trailing, 15)
+                .padding(.top, safeAreaInsets.top)
+                .padding(.bottom, 15)
+            }
+            .frame(maxWidth: .infinity)
+            .background(BackgroundBlurView(blurStyle: .systemUltraThinMaterialDark))
+            Spacer()
+        }
     }
 }
 
@@ -364,5 +445,69 @@ extension UIHostingController {
     }
 }
 
+private struct SafeAreaInsetsKey: EnvironmentKey {
+    static var defaultValue: EdgeInsets {
+        (UIApplication.shared.windows.first(where: { $0.isKeyWindow })?.safeAreaInsets ?? .zero).insets
+    }
+}
 
+extension EnvironmentValues {
+    
+    var safeAreaInsets: EdgeInsets {
+        self[SafeAreaInsetsKey.self]
+    }
+}
+
+private extension UIEdgeInsets {
+    
+    var insets: EdgeInsets {
+        EdgeInsets(top: top, leading: left, bottom: bottom, trailing: right)
+    }
+}
+
+public struct BackgroundCleanerView: UIViewRepresentable {
+    public init() {}
+    
+    public func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        DispatchQueue.main.async {
+            view.superview?.superview?.backgroundColor = .clear
+        }
+        return view
+    }
+    
+    public func updateUIView(_ uiView: UIView, context: Context) {}
+}
+
+struct BackgroundBlurView: UIViewRepresentable {
+    var blurStyle: UIBlurEffect.Style
+    
+    func makeUIView(context: Context) -> UIView {
+        let view = UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
+        view.autoresizingMask = [.flexibleHeight]
+        //        DispatchQueue.main.async {
+        //            view.superview?.superview?.backgroundColor = .clear
+        //        }
+        return view
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {}
+}
+
+class ImageSaver: NSObject {
+    var successHandler: (() -> Void)?
+    var errorHandler: ((Error) -> Void)?
+    
+    func writeToPhotoAlbum(image: UIImage) {
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), nil)
+    }
+
+    @objc func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            errorHandler?(error)
+        } else {
+            successHandler?()
+        }
+    }
+}
 
