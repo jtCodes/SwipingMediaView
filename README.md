@@ -47,9 +47,6 @@ struct ContentView: View {
                 SwipingMediaView(controllers: controllers,
                                  currentIndex: $currentIndex,
                                  startingIndex: 1)
-                .onTapGesture {
-                    print("tap")
-                }
             }
             .background(BackgroundCleanerView())
             .ignoresSafeArea(.all)
