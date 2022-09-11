@@ -2,7 +2,7 @@
 
 ### Photos like media swiping for SwiftUI
 
-https://user-images.githubusercontent.com/23707104/189459481-2fa4bc93-022c-49be-837b-b06dc9f86fcb.mp4
+![RPReplay_Final1662876842 2022-09-11 02_21_24](https://user-images.githubusercontent.com/23707104/189515150-98464eb3-def0-4214-beea-ed9105a13a20.gif)
 
 ### Features
 - Supports images, gifs and videos
@@ -25,7 +25,7 @@ struct ContentView: View {
         self.controllers =  [AnyView(SwipingMediaItemView(mediaItem: SwipingMediaItem(url: "https://i.redd.it/8t6vk567khm91.jpg",
                                                                                       type: .image))),
                              AnyView(SwipingMediaItemView(mediaItem: SwipingMediaItem(url: "https://i.redd.it/gczavw14bfm91.gif",
-                                                                                      type: .image))),
+                                                                                      type: .gif))),
                              AnyView(SwipingMediaItemView(mediaItem: SwipingMediaItem(url: "https://preview.redd.it/g232r4ymm4l91.gif?format=mp4&s=91cc39ae920fb57e3273aca59f4e273d974e1253",
                                                                                       type: .video)))]
     }
@@ -47,6 +47,9 @@ struct ContentView: View {
                 SwipingMediaView(controllers: controllers,
                                  currentIndex: $currentIndex,
                                  startingIndex: 1)
+                .onTapGesture {
+                    print("tap")
+                }
             }
             .background(BackgroundCleanerView())
             .ignoresSafeArea(.all)
@@ -113,9 +116,6 @@ struct ContentView: View {
                 SwipingMediaView(controllers: controllers,
                                  currentIndex: $currentIndex,
                                  startingIndex: currentIndex)
-                .onTapGesture {
-                    print("tap")
-                }
             }
             .background(BackgroundCleanerView())
             .ignoresSafeArea(.all)
