@@ -143,7 +143,7 @@ public struct SwipingMediaItemView: View {
     
     public var body: some View {
         ZStack {
-            Color.black.opacity((1 - yOffset) * 1.2)
+            Color.black.opacity((1 - yOffset) * 1.3)
             DraggableView(yOffset: $yOffset,
                           isPresented: $isPresented) {
                 
@@ -221,7 +221,7 @@ public struct SwipingMediaItemView: View {
             }
         }
         .onTapGesture {
-            withAnimation(.easeInOut) { swipingMediaViewSettings.isControlsVisible.toggle() }
+            withAnimation(.spring()) { swipingMediaViewSettings.isControlsVisible.toggle() }
         }
         .ignoresSafeArea(.all)
     }
@@ -429,7 +429,12 @@ struct DraggableView<Content: View>: UIViewRepresentable {
             
             if gesture.state == .ended {
                 if (hostingController.view.center.y > self.hostingController.view.frame.height * 0.8 ) {
-                    UIView.animate(withDuration: 0.2, delay: 0, options: [] , animations: { [self] in
+                    UIView.animate(withDuration: 0.2,
+                                   delay: 0,
+                                   usingSpringWithDamping: 0.75,
+                                   initialSpringVelocity: 3,
+                                   options: .curveEaseInOut,
+                                   animations: { [self] in
                         hostingController.view.center = CGPoint(x: hostingController.view.center.x,
                                                                 y: self.hostingController.view.frame.height * 2)
                         parent.yOffset = 1
@@ -437,7 +442,12 @@ struct DraggableView<Content: View>: UIViewRepresentable {
                         self.parent.isPresented = false
                     }
                 } else {
-                    UIView.animate(withDuration: 0.1, delay: 0, options: [] , animations: { [self] in
+                    UIView.animate(withDuration: 0.2,
+                                   delay: 0,
+                                   usingSpringWithDamping: 0.75,
+                                   initialSpringVelocity: 3,
+                                   options: .curveEaseInOut,
+                                   animations: { [self] in
                         hostingController.view.center = CGPoint(x: hostingController.view.center.x,
                                                                 y: self.hostingController.view.frame.height / 2)
                         parent.yOffset = 0
