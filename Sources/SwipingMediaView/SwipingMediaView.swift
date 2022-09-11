@@ -134,7 +134,11 @@ public struct SwipingMediaItemView: View {
     public init(mediaItem: SwipingMediaItem,
                 shouldShowDownloadButton: Bool = false ) {
         self.mediaItem = mediaItem
-        self.url = mediaItem.url
+        if (verifyUrl(urlString: mediaItem.url)) {
+            self.url = mediaItem.url
+        } else {
+            self.url = "https://via.placeholder.com/72x72.jpg"
+        }
         swipingMediaViewSettings.shouldShowDownloadButton = shouldShowDownloadButton
     }
     
@@ -514,5 +518,14 @@ class ImageSaver: NSObject {
             successHandler?()
         }
     }
+}
+
+func verifyUrl (urlString: String?) -> Bool {
+    if let urlString = urlString {
+        if let url = NSURL(string: urlString) {
+            return UIApplication.shared.canOpenURL(url as URL)
+        }
+    }
+    return false
 }
 
