@@ -128,17 +128,11 @@ public struct SwipingMediaItemView: View {
     @State var yOffset: CGFloat = 0
     @State var isPlaying: Bool = false
     @State var isPresented: Bool = true
-    @State var url: String = ""
     var mediaItem: SwipingMediaItem
     
     public init(mediaItem: SwipingMediaItem,
                 shouldShowDownloadButton: Bool = false ) {
         self.mediaItem = mediaItem
-        if (verifyUrl(urlString: mediaItem.url)) {
-            self.url = mediaItem.url
-        } else {
-            self.url = "https://via.placeholder.com/72x72.jpg"
-        }
         swipingMediaViewSettings.shouldShowDownloadButton = shouldShowDownloadButton
     }
     
@@ -150,13 +144,20 @@ public struct SwipingMediaItemView: View {
                 
                 if mediaItem.type == .image {
                     ZoomableScrollView {
-                        AnimatedImage(url: URL(string: url))
-                            .onFailure { _ in
-                                url = "https://via.placeholder.com/72x72.jpg"
-                            }
-                            .resizable()
-                            .indicator(SDWebImageProgressIndicator.default) // UIKit indicator component
-                            .scaledToFit()
+                        if (verifyUrl(urlString: mediaItem.url) == true) {
+                            AnimatedImage(url: URL(string: mediaItem.url))
+                                .onFailure { _ in
+                                   
+                                }
+                                .resizable()
+                                .indicator(SDWebImageProgressIndicator.default) // UIKit indicator component
+                                .scaledToFit()
+                        } else {
+                            AnimatedImage(url: URL(string: "https://via.placeholder.com/72x72.jpg"))
+                                .resizable()
+                                .indicator(SDWebImageProgressIndicator.default) // UIKit indicator component
+                                .scaledToFit()
+                        }
                     }
                 } else {
                     Video(url: URL(string: mediaItem.url)!)
@@ -171,6 +172,8 @@ public struct SwipingMediaItemView: View {
                         }
                 }
             }
+                          .frame(width:UIScreen.main.bounds.width,
+                                    height:UIScreen.main.bounds.height)
             
             if (swipingMediaViewSettings.isControlsVisible == true) {
                 SwipingMediaItemViewControlsView(mediaItem: mediaItem)
