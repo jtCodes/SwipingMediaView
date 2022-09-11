@@ -10,7 +10,7 @@ https://user-images.githubusercontent.com/23707104/189459481-2fa4bc93-022c-49be-
 - Drag to dismiss
 - Download images (Important: you must add Privacy - Photo Library Additions Usage Description to info.plist in order to get the download button to work)
 
-### Simple Example
+### Simple example
 ```Swift
 
 import SwiftUI
@@ -60,7 +60,7 @@ struct ContentView: View {
     }
 }
 ```
-### Example With Horizontal Scrolled Images
+### Example with horizontal scrolled images and on swipe handling
 ```Swift
 
 struct ContentView: View {
