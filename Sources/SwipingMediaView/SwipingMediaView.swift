@@ -128,11 +128,13 @@ public struct SwipingMediaItemView: View {
     @State var yOffset: CGFloat = 0
     @State var isPlaying: Bool = false
     @State var isPresented: Bool = true
+    @State var url: String = ""
     var mediaItem: SwipingMediaItem
     
     public init(mediaItem: SwipingMediaItem,
                 shouldShowDownloadButton: Bool = false ) {
         self.mediaItem = mediaItem
+        self.url = mediaItem.url
         swipingMediaViewSettings.shouldShowDownloadButton = shouldShowDownloadButton
     }
     
@@ -144,7 +146,10 @@ public struct SwipingMediaItemView: View {
                 
                 if mediaItem.type == .image {
                     ZoomableScrollView {
-                        AnimatedImage(url: URL(string: mediaItem.url))
+                        AnimatedImage(url: URL(string: url))
+                            .onFailure { _ in
+                                url = "https://via.placeholder.com/72x72.jpg"
+                            }
                             .resizable()
                             .indicator(SDWebImageProgressIndicator.default) // UIKit indicator component
                             .scaledToFit()
