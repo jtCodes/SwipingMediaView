@@ -428,7 +428,7 @@ struct DraggableView<Content: View>: UIViewRepresentable {
             }
             
             if gesture.state == .ended {
-                if (hostingController.view.center.y > self.hostingController.view.frame.height * 0.8 ) {
+                if (hostingController.view.center.y > self.hostingController.view.frame.height * 0.6 ) {
                     UIView.animate(withDuration: 0.2,
                                    delay: 0,
                                    usingSpringWithDamping: 0.75,
