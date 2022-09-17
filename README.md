@@ -19,15 +19,15 @@ import SwipingMediaView
 struct ContentView: View {
     @State var isPresented: Bool = false
     @State var currentIndex: Int = 1
-    var controllers: [AnyView] = []
+    var mediaItems: [SwipingMediaItem] = []
 
     init() {
-        self.controllers =  [AnyView(SwipingMediaItemView(mediaItem: SwipingMediaItem(url: "https://i.redd.it/8t6vk567khm91.jpg",
-                                                                                      type: .image))),
-                             AnyView(SwipingMediaItemView(mediaItem: SwipingMediaItem(url: "https://i.redd.it/gczavw14bfm91.gif",
-                                                                                      type: .gif))),
-                             AnyView(SwipingMediaItemView(mediaItem: SwipingMediaItem(url: "https://preview.redd.it/g232r4ymm4l91.gif?format=mp4&s=91cc39ae920fb57e3273aca59f4e273d974e1253",
-                                                                                      type: .video)))]
+        self.mediaItems =  [SwipingMediaItem(url: "https://i.redd.it/8t6vk567khm91.jpg",
+                                             type: .image),
+                            SwipingMediaItem(url: "https://i.redd.it/gczavw14bfm91.gif",
+                                             type: .gif),
+                            SwipingMediaItem(url: "https://preview.redd.it/g232r4ymm4l91.gif?format=mp4&s=91cc39ae920fb57e3273aca59f4e273d974e1253",
+                                             type: .video)]
     }
 
     var body: some View {
@@ -45,7 +45,10 @@ struct ContentView: View {
         // FullScreenCover works well in presenting SwipingMediaView
         .fullScreenCover(isPresented: $isPresented) {
             ZStack{
-                SwipingMediaView(controllers: controllers,
+                SwipingMediaView(controllers: mediaItems.map {AnyView(SwipingMediaItemView(mediaItem: $0,
+                                                                                           isPresented: $isPresented,
+                                                                                           shouldShowDownloadButton: true
+                                                                                          ))},
                                  currentIndex: $currentIndex,
                                  startingIndex: currentIndex)
             }
@@ -65,16 +68,14 @@ struct ContentView: View {
     @State var isPresented: Bool = false
     @State var currentIndex: Int = 1
     var images: [String] = []
-    var controllers: [AnyView] = []
+    var mediaItems: [SwipingMediaItem] = []
 
     init() {
         for i in 0..<64 {
             images.append("https://picsum.photos/250?image=" + String(i))
-            controllers.append(AnyView(SwipingMediaItemView(mediaItem: SwipingMediaItem(url: "https://picsum.photos/250?image=" + String(i),
+            mediaItems.append(SwipingMediaItem(url: "https://picsum.photos/250?image=" + String(i),
                                                                                         type: .image,
-                                                                                        title: "Image " + String(i)),
-                                                            shouldShowDownloadButton: true
-            )))
+                                                                                        title: "Image " + String(i)))
         }
     }
 
@@ -113,7 +114,10 @@ struct ContentView: View {
         // FullScreenCover works well in presenting SwipingMediaView
         .fullScreenCover(isPresented: $isPresented) {
             ZStack{
-                SwipingMediaView(controllers: controllers,
+                SwipingMediaView(controllers: mediaItems.map {AnyView(SwipingMediaItemView(mediaItem: $0,
+                                                                                           isPresented: $isPresented,
+                                                                                           shouldShowDownloadButton: true
+                                                                                          ))},
                                  currentIndex: $currentIndex,
                                  startingIndex: currentIndex)
             }

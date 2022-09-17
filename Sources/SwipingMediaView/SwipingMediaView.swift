@@ -126,18 +126,19 @@ public struct SwipingMediaItem {
 }
 
 public struct SwipingMediaItemView: View {
-    @Environment(\.presentationMode) var presentationMode
     @ObservedObject var swipingMediaViewSettings: SwipingMediaViewSettings = SwipingMediaViewSettings.shared
     
     @State var yOffset: CGFloat = 0
     @State var isPlaying: Bool = false
-    @State var isPresented: Bool = true
     @State var isLoadingError: Bool = false
+    @Binding var isPresented: Bool
     var mediaItem: SwipingMediaItem
     
     public init(mediaItem: SwipingMediaItem,
+                isPresented: Binding<Bool>,
                 shouldShowDownloadButton: Bool = false ) {
         self.mediaItem = mediaItem
+        self._isPresented = isPresented
         swipingMediaViewSettings.shouldShowDownloadButton = shouldShowDownloadButton
     }
     
@@ -210,14 +211,14 @@ public struct SwipingMediaItemView: View {
                                     height:UIScreen.main.bounds.height)
             
             if (swipingMediaViewSettings.isControlsVisible == true) {
-                SwipingMediaItemViewControlsView(mediaItem: mediaItem)
+                SwipingMediaItemViewControlsView(mediaItem: mediaItem,
+                                                 isPresented: $isPresented)
                     .opacity((1 - yOffset) * 1.2)
             }
         }
         .onChange(of: isPresented) { newValue in
             if (isPresented == false) {
                 swipingMediaViewSettings.isControlsVisible = false
-                presentationMode.wrappedValue.dismiss()
             }
         }
         .onTapGesture {
@@ -228,13 +229,15 @@ public struct SwipingMediaItemView: View {
 }
 
 public struct SwipingMediaItemViewControlsView: View {
-    @Environment(\.presentationMode) var presentationMode
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     var swipingMediaViewSettings: SwipingMediaViewSettings = SwipingMediaViewSettings.shared
     var mediaItem: SwipingMediaItem
+    @Binding var isPresented: Bool
     
-    public init(mediaItem: SwipingMediaItem) {
+    public init(mediaItem: SwipingMediaItem,
+                isPresented: Binding<Bool>) {
         self.mediaItem = mediaItem
+        self._isPresented = isPresented
     }
     
     public var body: some View {
@@ -243,7 +246,7 @@ public struct SwipingMediaItemViewControlsView: View {
                 HStack(alignment: .center) {
                     Button {
                         swipingMediaViewSettings.isControlsVisible = false
-                        presentationMode.wrappedValue.dismiss()
+                        isPresented = false
                     } label: {
                         Image(systemName: "x.circle.fill")
                             .foregroundColor(Color.gray)
