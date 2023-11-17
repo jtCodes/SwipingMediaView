@@ -150,6 +150,7 @@ public struct SwipingMediaItemView: View {
     public var body: some View {
         ZStack {
             Color.black.opacity((1 - yOffset) * 1.3)
+                .ignoresSafeArea(.all)
             DraggableView(yOffset: $yOffset,
                           isPresented: $isPresented) {
                 
@@ -204,6 +205,7 @@ public struct SwipingMediaItemView: View {
                         .isPlaying($isPlaying)
                         .loop(true)
                         .playbackControls(true)
+                        .isMuted(true)
                 }
             }
             
@@ -220,21 +222,27 @@ public struct SwipingMediaItemView: View {
         }
         .onDidAppear {
             if (mediaItem.type == .video) {
+                swipingMediaViewSettings.isControlsVisible = false
                 isPlaying = true
             }
             print("item did apear", mediaItem.type)
         }
         .onWillDisappear{
-//            isPlaying = false
             if (mediaItem.type == .video) {
                 isPlaying = false
             }
             print("item willdisapear", mediaItem.type)
         }
-//        .onTapGesture {
-//            withAnimation(.spring()) { swipingMediaViewSettings.isControlsVisible.toggle() }
-//        }
-//        .ignoresSafeArea(.all)
+        .if(mediaItem.type != .video) { view in
+            view.ignoresSafeArea(.all)
+        }
+        .if(mediaItem.type != .video) { view in
+            view.simultaneousGesture(
+                TapGesture().onEnded {
+                    withAnimation(.spring()) { swipingMediaViewSettings.isControlsVisible.toggle() }
+                }
+            )
+        }
     }
 }
 
@@ -685,5 +693,20 @@ extension View {
     
     func onDidAppear(_ perform: @escaping () -> Void) -> some View {
         self.modifier(DidAppearModifier(callback: perform))
+    }
+}
+
+extension View {
+    /// Applies the given transform if the given condition evaluates to `true`.
+    /// - Parameters:
+    ///   - condition: The condition to evaluate.
+    ///   - transform: The transform to apply to the source `View`.
+    /// - Returns: Either the original `View` or the modified `View` if the condition is `true`.
+    @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
     }
 }
