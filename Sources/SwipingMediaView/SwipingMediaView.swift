@@ -208,12 +208,12 @@ public struct SwipingMediaItemView: View {
                 }
             }
                           .frame(width:UIScreen.main.bounds.width,
-                                    height:UIScreen.main.bounds.height)
+                                 height:UIScreen.main.bounds.height)
             
             if (swipingMediaViewSettings.isControlsVisible == true) {
                 SwipingMediaItemViewControlsView(mediaItem: mediaItem,
                                                  isPresented: $isPresented)
-                    .opacity((1 - yOffset) * 1.2)
+                .opacity((1 - yOffset) * 1.2)
             }
         }
         .onChange(of: isPresented) { newValue in
@@ -560,7 +560,7 @@ class ImageSaver: NSObject {
     func writeToPhotoAlbum(image: UIImage) {
         UIImageWriteToSavedPhotosAlbum(image, self, #selector(saveCompleted), nil)
     }
-
+    
     @objc func saveCompleted(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
         if let error = error {
             errorHandler?(error)

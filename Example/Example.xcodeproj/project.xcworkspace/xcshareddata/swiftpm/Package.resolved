@@ -1,0 +1,41 @@
+{
+  "pins" : [
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher.git",
+      "state" : {
+        "revision" : "277f1ab2c6664b19b4a412e32b094b201e2d5757",
+        "version" : "7.10.0"
+      }
+    },
+    {
+      "identity" : "sdwebimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImage.git",
+      "state" : {
+        "revision" : "1b9a2e902cbde5fdf362faa0f4fd76ea74d74305",
+        "version" : "5.18.5"
+      }
+    },
+    {
+      "identity" : "sdwebimageswiftui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImageSwiftUI.git",
+      "state" : {
+        "revision" : "5f025e54a03d3d33dff24d7a19331f446f00ed9d",
+        "version" : "2.2.4"
+      }
+    },
+    {
+      "identity" : "svevideoui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SergioEstevao/SVEVideoUI.git",
+      "state" : {
+        "revision" : "82c2aff90d9382befe3385f20713c81d5db94c34",
+        "version" : "0.3.2"
+      }
+    }
+  ],
+  "version" : 2
+}
