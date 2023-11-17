@@ -79,7 +79,7 @@ struct ContentView: View {
                                              type: .image),
                             SwipingMediaItem(url: "https://i.redd.it/gczavw14bfm91.gif",
                                              type: .gif),
-                            SwipingMediaItem(url: "https://preview.redd.it/g232r4ymm4l91.gif?format=mp4&s=91cc39ae920fb57e3273aca59f4e273d974e1253",
+                            SwipingMediaItem(url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
                                              type: .video)]
     }
 

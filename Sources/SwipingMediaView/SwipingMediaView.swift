@@ -204,16 +204,8 @@ public struct SwipingMediaItemView: View {
                         .isPlaying($isPlaying)
                         .loop(true)
                         .playbackControls(true)
-                        .onAppear() {
-                            isPlaying = true
-                        }
-                        .onDisappear() {
-                            isPlaying = false
-                        }
                 }
             }
-                          .frame(width:UIScreen.main.bounds.width,
-                                 height:UIScreen.main.bounds.height)
             
             if (swipingMediaViewSettings.isControlsVisible == true) {
                 SwipingMediaItemViewControlsView(mediaItem: mediaItem,
@@ -226,10 +218,23 @@ public struct SwipingMediaItemView: View {
                 swipingMediaViewSettings.isControlsVisible = false
             }
         }
-        .onTapGesture {
-            withAnimation(.spring()) { swipingMediaViewSettings.isControlsVisible.toggle() }
+        .onDidAppear {
+            if (mediaItem.type == .video) {
+                isPlaying = true
+            }
+            print("item did apear", mediaItem.type)
         }
-        .ignoresSafeArea(.all)
+        .onWillDisappear{
+//            isPlaying = false
+            if (mediaItem.type == .video) {
+                isPlaying = false
+            }
+            print("item willdisapear", mediaItem.type)
+        }
+//        .onTapGesture {
+//            withAnimation(.spring()) { swipingMediaViewSettings.isControlsVisible.toggle() }
+//        }
+//        .ignoresSafeArea(.all)
     }
 }
 
@@ -585,3 +590,100 @@ func verifyUrl (urlString: String?) -> Bool {
     return false
 }
 
+struct WillDisappearHandler: UIViewControllerRepresentable {
+    func makeCoordinator() -> WillDisappearHandler.Coordinator {
+        Coordinator(onWillDisappear: onWillDisappear)
+    }
+
+    let onWillDisappear: () -> Void
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<WillDisappearHandler>) -> UIViewController {
+        context.coordinator
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: UIViewControllerRepresentableContext<WillDisappearHandler>) {
+    }
+
+    typealias UIViewControllerType = UIViewController
+
+    class Coordinator: UIViewController {
+        let onWillDisappear: () -> Void
+
+        init(onWillDisappear: @escaping () -> Void) {
+            self.onWillDisappear = onWillDisappear
+            super.init(nibName: nil, bundle: nil)
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        override func viewWillDisappear(_ animated: Bool) {
+            super.viewWillDisappear(animated)
+            onWillDisappear()
+        }
+    }
+}
+
+struct WillDisappearModifier: ViewModifier {
+    let callback: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .background(WillDisappearHandler(onWillDisappear: callback))
+    }
+}
+
+struct DidAppearHandler: UIViewControllerRepresentable {
+    func makeCoordinator() -> DidAppearHandler.Coordinator {
+        Coordinator(onDidAppear: onDidAppear)
+    }
+
+    let onDidAppear: () -> Void
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<DidAppearHandler>) -> UIViewController {
+        context.coordinator
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: UIViewControllerRepresentableContext<DidAppearHandler>) {
+    }
+
+    typealias UIViewControllerType = UIViewController
+
+    class Coordinator: UIViewController {
+        let onDidAppear: () -> Void
+
+        init(onDidAppear: @escaping () -> Void) {
+            self.onDidAppear = onDidAppear
+            super.init(nibName: nil, bundle: nil)
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            onDidAppear()
+        }
+    }
+}
+
+struct DidAppearModifier: ViewModifier {
+    let callback: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .background(DidAppearHandler(onDidAppear: callback))
+    }
+}
+
+extension View {
+    func onWillDisappear(_ perform: @escaping () -> Void) -> some View {
+        self.modifier(WillDisappearModifier(callback: perform))
+    }
+    
+    func onDidAppear(_ perform: @escaping () -> Void) -> some View {
+        self.modifier(DidAppearModifier(callback: perform))
+    }
+}
