@@ -10,6 +10,16 @@
 - Drag to dismiss
 - Download images (Important: you must add Privacy - Photo Library Additions Usage Description to info.plist in order to get the download button to work)
 
+### Installation via Swift Package Manager
+
+You can install `SwipingMediaView` using Swift Package Manager in Xcode:
+
+1. Open your Xcode project.
+2. Navigate to `File` > `Swift Packages` > `Add Package Dependency`.
+3. Enter the repository URL: `https://github.com/jtCodes/SwipingMediaView.git`
+4. Specify the version you want to use. You can specify a version number, a branch name, or a commit hash.
+5. Once added, you can import `SwipingMediaView` in your SwiftUI files and start using it.
+
 ### Simple example
 ```Swift
 
@@ -130,13 +140,3 @@ struct ContentView: View {
     }
 }
 ```
-
-## Installation via Swift Package Manager
-
-You can install `SwipingMediaView` using Swift Package Manager in Xcode:
-
-1. Open your Xcode project.
-2. Navigate to `File` > `Swift Packages` > `Add Package Dependency`.
-3. Enter the repository URL: `https://github.com/jtCodes/SwipingMediaView.git`
-4. Specify the version you want to use. You can specify a version number, a branch name, or a commit hash.
-5. Once added, you can import `SwipingMediaView` in your SwiftUI files and start using it.
