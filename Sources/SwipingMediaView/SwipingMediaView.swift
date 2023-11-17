@@ -29,7 +29,8 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
             self.parent = parent
         }
         
-        public func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        public func pageViewController(_ pageViewController: UIPageViewController, 
+                                       viewControllerBefore viewController: UIViewController) -> UIViewController? {
             guard let index = self.parent.controllers.firstIndex(of: viewController) else { return nil }
             if index == 0 {
                 let vc = self.parent.controllers.last
@@ -44,7 +45,8 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
             return vc
         }
         
-        public func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+        public func pageViewController(_ pageViewController: UIPageViewController,
+                                       viewControllerAfter viewController: UIViewController) -> UIViewController? {
             guard let index = self.parent.controllers.firstIndex(of: viewController) else { return nil }
             if index == self.parent.controllers.count - 1 {
                 let vc = self.parent.controllers.first
@@ -59,7 +61,10 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
             return vc
         }
         
-        public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+        public func pageViewController(_ pageViewController: UIPageViewController, 
+                                       didFinishAnimating finished: Bool,
+                                       previousViewControllers: [UIViewController],
+                                       transitionCompleted completed: Bool) {
             guard completed else { return }
             if let viewControllerIndex = parent.controllers.firstIndex(of: pageViewController.viewControllers!.first!) {
                 parent.currentIndex = viewControllerIndex
@@ -376,7 +381,8 @@ struct DraggableView<Content: View>: UIViewRepresentable {
     }
     
     func makeUIView(context: Context) -> UIView {
-        let panGesture = UIPanGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.didDrag(gesture:)))
+        let panGesture = UIPanGestureRecognizer(target: context.coordinator, 
+                                                action: #selector(context.coordinator.didDrag(gesture:)))
         panGesture.delegate = context.coordinator
         
         let hostedView = context.coordinator.hostingController.view!
