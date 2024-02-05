@@ -203,7 +203,7 @@ public struct SwipingMediaItemView: View {
                 } else {
                     Video(url: URL(string: mediaItem.url)!)
                         .isPlaying($isPlaying)
-                        .loop(true)
+                        .loop(.constant(true))
                         .playbackControls(true)
                         .isMuted(false)
                 }
