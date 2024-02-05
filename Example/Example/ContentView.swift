@@ -75,12 +75,12 @@ struct ContentView: View {
     var mediaItems: [SwipingMediaItem] = []
 
     init() {
-        self.mediaItems =  [SwipingMediaItem(url: "https://i.redd.it/8t6vk567khm91.jpg",
+        self.mediaItems =  [SwipingMediaItem(url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+                                             type: .video),
+                            SwipingMediaItem(url: "https://i.redd.it/8t6vk567khm91.jpg",
                                              type: .image),
                             SwipingMediaItem(url: "https://i.redd.it/gczavw14bfm91.gif",
-                                             type: .gif),
-                            SwipingMediaItem(url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-                                             type: .video)]
+                                             type: .gif)]
     }
 
     var body: some View {

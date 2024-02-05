@@ -134,7 +134,7 @@ public struct SwipingMediaItemView: View {
     @ObservedObject var swipingMediaViewSettings: SwipingMediaViewSettings = SwipingMediaViewSettings.shared
     
     @State var yOffset: CGFloat = 0
-    @State var isPlaying: Bool = false
+    @State var isPlaying: Bool = true
     @State var isLoadingError: Bool = false
     @Binding var isPresented: Bool
     var mediaItem: SwipingMediaItem
@@ -205,7 +205,7 @@ public struct SwipingMediaItemView: View {
                         .isPlaying($isPlaying)
                         .loop(true)
                         .playbackControls(true)
-                        .isMuted(true)
+                        .isMuted(false)
                 }
             }
             
