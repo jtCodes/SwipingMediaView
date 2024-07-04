@@ -10,7 +10,7 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
     var controllers: [UIViewController] = []
     var startingIndex: Int = 0
     
-    @available(*, deprecated, message: "You can now pass in SwiftUI views by using the views variable instead")
+    @available(*, deprecated, message: "You can now init with just mediaItems: [SwipingMediaItem] or <V: View>(views: [V]")
     public init(controllers: [AnyView] = [],
                 currentIndex: Binding<Int>,
                 startingIndex: Int = 0) {
@@ -240,6 +240,13 @@ public struct SwipingMediaItemView: View {
                         .isMuted(false)
                 }
             }
+                          .if(mediaItem.type != .video) { view in
+                              view.simultaneousGesture(
+                                TapGesture().onEnded {
+                                    withAnimation(.spring()) { swipingMediaViewSettings.isControlsVisible.toggle() }
+                                }
+                              )
+                          }
             
             if (swipingMediaViewSettings.isControlsVisible == true) {
                 SwipingMediaItemViewControlsView(mediaItem: mediaItem,
@@ -268,13 +275,6 @@ public struct SwipingMediaItemView: View {
         .if(mediaItem.type != .video) { view in
             view.ignoresSafeArea(.all)
         }
-        .if(mediaItem.type != .video) { view in
-            view.simultaneousGesture(
-                TapGesture().onEnded {
-                    withAnimation(.spring()) { swipingMediaViewSettings.isControlsVisible.toggle() }
-                }
-            )
-        }
     }
 }
 
@@ -283,6 +283,7 @@ public struct SwipingMediaItemViewControlsView: View {
     var swipingMediaViewSettings: SwipingMediaViewSettings = SwipingMediaViewSettings.shared
     var mediaItem: SwipingMediaItem
     @Binding var isPresented: Bool
+    @State var isImageSaved: Bool = false
     
     public init(mediaItem: SwipingMediaItem,
                 isPresented: Binding<Bool>) {
@@ -334,12 +335,12 @@ public struct SwipingMediaItemViewControlsView: View {
                                     let imageSaver = ImageSaver()
                                     imageSaver.writeToPhotoAlbum(image: img)
                                     imageSaver.successHandler = {
-                                        
+                                        isImageSaved = true
                                     }
                                 }
                             )
                         } label: {
-                            Image(systemName: "tray.and.arrow.down.fill")
+                            Image(systemName: isImageSaved ? "tray.and.arrow.down.fill" : "tray.and.arrow.down")
                                 .foregroundColor(Color.gray)
                                 .font(.system(size: 18))
                                 .padding(5)
