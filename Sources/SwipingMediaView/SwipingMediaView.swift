@@ -10,6 +10,7 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
     var controllers: [UIViewController] = []
     var startingIndex: Int = 0
     
+    @available(*, deprecated, message: "You can now pass in SwiftUI views by using the views variable instead")
     public init(controllers: [AnyView] = [],
                 currentIndex: Binding<Int>,
                 startingIndex: Int = 0) {
@@ -17,6 +18,29 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
         self.controllers = controllers.map {UIHostingController(rootView: $0)}
         self.startingIndex = startingIndex
     }
+    
+    public init<V: View>(views: [V],
+                         currentIndex: Binding<Int>,
+                         startingIndex: Int = 0) {
+        self._currentIndex = currentIndex
+        self.controllers = views.map { UIHostingController(rootView: AnyView($0)) }
+        self.startingIndex = startingIndex
+    }
+    
+    public init(mediaItems: [SwipingMediaItem],
+                isPresented: Binding<Bool>,
+                currentIndex: Binding<Int>,
+                startingIndex: Int = 0) {
+        self._currentIndex = currentIndex
+        self.controllers = mediaItems.map {
+            print($0.shouldShowDownloadButton)
+            let view = SwipingMediaItemView(mediaItem: $0,
+                                            isPresented: isPresented)
+            return UIHostingController(rootView: AnyView(view))
+        }
+        self.startingIndex = startingIndex
+    }
+    
     
     public func makeCoordinator() -> Coordinator {
         return Coordinator(self)
@@ -29,7 +53,7 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
             self.parent = parent
         }
         
-        public func pageViewController(_ pageViewController: UIPageViewController, 
+        public func pageViewController(_ pageViewController: UIPageViewController,
                                        viewControllerBefore viewController: UIViewController) -> UIViewController? {
             guard let index = self.parent.controllers.firstIndex(of: viewController) else { return nil }
             if index == 0 {
@@ -61,7 +85,7 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
             return vc
         }
         
-        public func pageViewController(_ pageViewController: UIPageViewController, 
+        public func pageViewController(_ pageViewController: UIPageViewController,
                                        didFinishAnimating finished: Bool,
                                        previousViewControllers: [UIViewController],
                                        transitionCompleted completed: Bool) {
@@ -99,7 +123,6 @@ public struct SwipingMediaView: UIViewControllerRepresentable {
 class SwipingMediaViewSettings: ObservableObject {
     static let shared: SwipingMediaViewSettings = SwipingMediaViewSettings()
     @Published var isControlsVisible: Bool = false
-    var shouldShowDownloadButton: Bool = false
 }
 
 public enum SwipingMediaItemFormatType {
@@ -113,13 +136,15 @@ public struct SwipingMediaItem {
         type: SwipingMediaItemFormatType,
         placeHolder: String = "",
         title: String = "",
-        description: String = "") {
+        description: String = "",
+        shouldShowDownloadButton: Bool = false) {
             self.id = id
             self.url = url
             self.placeHolder = placeHolder
             self.type = type
             self.title = title
             self.description = description
+            self.shouldShowDownloadButton = shouldShowDownloadButton
         }
     
     let id: String
@@ -128,6 +153,7 @@ public struct SwipingMediaItem {
     let type: SwipingMediaItemFormatType
     let title: String
     let description: String
+    let shouldShowDownloadButton: Bool
 }
 
 public struct SwipingMediaItemView: View {
@@ -139,12 +165,18 @@ public struct SwipingMediaItemView: View {
     @Binding var isPresented: Bool
     var mediaItem: SwipingMediaItem
     
+    @available(*, deprecated, message: "shouldShowDownloadButton is now controlled by SwipingMediaItem")
     public init(mediaItem: SwipingMediaItem,
                 isPresented: Binding<Bool>,
                 shouldShowDownloadButton: Bool = false ) {
         self.mediaItem = mediaItem
         self._isPresented = isPresented
-        swipingMediaViewSettings.shouldShowDownloadButton = shouldShowDownloadButton
+    }
+    
+    public init(mediaItem: SwipingMediaItem,
+                isPresented: Binding<Bool>) {
+        self.mediaItem = mediaItem
+        self._isPresented = isPresented
     }
     
     public var body: some View {
@@ -278,7 +310,7 @@ public struct SwipingMediaItemViewControlsView: View {
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)
                     Spacer()
-                    if (swipingMediaViewSettings.shouldShowDownloadButton == true && mediaItem.type != .video) {
+                    if (mediaItem.shouldShowDownloadButton == true && mediaItem.type != .video) {
                         Button {
                             SDWebImageManager.shared.loadImage(
                                 with: URL(string: mediaItem.url),
@@ -394,7 +426,7 @@ struct DraggableView<Content: View>: UIViewRepresentable {
     }
     
     func makeUIView(context: Context) -> UIView {
-        let panGesture = UIPanGestureRecognizer(target: context.coordinator, 
+        let panGesture = UIPanGestureRecognizer(target: context.coordinator,
                                                 action: #selector(context.coordinator.didDrag(gesture:)))
         panGesture.delegate = context.coordinator
         
@@ -602,30 +634,30 @@ struct WillDisappearHandler: UIViewControllerRepresentable {
     func makeCoordinator() -> WillDisappearHandler.Coordinator {
         Coordinator(onWillDisappear: onWillDisappear)
     }
-
+    
     let onWillDisappear: () -> Void
-
+    
     func makeUIViewController(context: UIViewControllerRepresentableContext<WillDisappearHandler>) -> UIViewController {
         context.coordinator
     }
-
+    
     func updateUIViewController(_ uiViewController: UIViewController, context: UIViewControllerRepresentableContext<WillDisappearHandler>) {
     }
-
+    
     typealias UIViewControllerType = UIViewController
-
+    
     class Coordinator: UIViewController {
         let onWillDisappear: () -> Void
-
+        
         init(onWillDisappear: @escaping () -> Void) {
             self.onWillDisappear = onWillDisappear
             super.init(nibName: nil, bundle: nil)
         }
-
+        
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
-
+        
         override func viewWillDisappear(_ animated: Bool) {
             super.viewWillDisappear(animated)
             onWillDisappear()
@@ -635,7 +667,7 @@ struct WillDisappearHandler: UIViewControllerRepresentable {
 
 struct WillDisappearModifier: ViewModifier {
     let callback: () -> Void
-
+    
     func body(content: Content) -> some View {
         content
             .background(WillDisappearHandler(onWillDisappear: callback))
@@ -646,30 +678,30 @@ struct DidAppearHandler: UIViewControllerRepresentable {
     func makeCoordinator() -> DidAppearHandler.Coordinator {
         Coordinator(onDidAppear: onDidAppear)
     }
-
+    
     let onDidAppear: () -> Void
-
+    
     func makeUIViewController(context: UIViewControllerRepresentableContext<DidAppearHandler>) -> UIViewController {
         context.coordinator
     }
-
+    
     func updateUIViewController(_ uiViewController: UIViewController, context: UIViewControllerRepresentableContext<DidAppearHandler>) {
     }
-
+    
     typealias UIViewControllerType = UIViewController
-
+    
     class Coordinator: UIViewController {
         let onDidAppear: () -> Void
-
+        
         init(onDidAppear: @escaping () -> Void) {
             self.onDidAppear = onDidAppear
             super.init(nibName: nil, bundle: nil)
         }
-
+        
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
-
+        
         override func viewDidAppear(_ animated: Bool) {
             super.viewDidAppear(animated)
             onDidAppear()
@@ -679,7 +711,7 @@ struct DidAppearHandler: UIViewControllerRepresentable {
 
 struct DidAppearModifier: ViewModifier {
     let callback: () -> Void
-
+    
     func body(content: Content) -> some View {
         content
             .background(DidAppearHandler(onDidAppear: callback))
