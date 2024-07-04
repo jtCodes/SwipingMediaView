@@ -32,12 +32,13 @@ struct ContentView: View {
     var mediaItems: [SwipingMediaItem] = []
 
     init() {
-        self.mediaItems =  [SwipingMediaItem(url: "https://i.redd.it/8t6vk567khm91.jpg",
-                                             type: .image),
+        self.mediaItems =  [SwipingMediaItem(url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+                                             type: .video),
+                            SwipingMediaItem(url: "https://i.redd.it/8t6vk567khm91.jpg",
+                                             type: .image,
+                                             shouldShowDownloadButton: true),
                             SwipingMediaItem(url: "https://i.redd.it/gczavw14bfm91.gif",
-                                             type: .gif),
-                            SwipingMediaItem(url: "https://preview.redd.it/g232r4ymm4l91.gif?format=mp4&s=91cc39ae920fb57e3273aca59f4e273d974e1253",
-                                             type: .video)]
+                                             type: .gif)]
     }
 
     var body: some View {
@@ -55,10 +56,8 @@ struct ContentView: View {
         // FullScreenCover works well in presenting SwipingMediaView
         .fullScreenCover(isPresented: $isPresented) {
             ZStack{
-                SwipingMediaView(controllers: mediaItems.map {AnyView(SwipingMediaItemView(mediaItem: $0,
-                                                                                           isPresented: $isPresented,
-                                                                                           shouldShowDownloadButton: true
-                                                                                          ))},
+                SwipingMediaView(mediaItems: mediaItems,
+                                 isPresented: $isPresented,
                                  currentIndex: $currentIndex,
                                  startingIndex: currentIndex)
             }
@@ -124,10 +123,8 @@ struct ContentView: View {
         // FullScreenCover works well in presenting SwipingMediaView
         .fullScreenCover(isPresented: $isPresented) {
             ZStack{
-                SwipingMediaView(controllers: mediaItems.map {AnyView(SwipingMediaItemView(mediaItem: $0,
-                                                                                           isPresented: $isPresented,
-                                                                                           shouldShowDownloadButton: true
-                                                                                          ))},
+                SwipingMediaView(mediaItems: mediaItems,
+                                 isPresented: $isPresented,
                                  currentIndex: $currentIndex,
                                  startingIndex: currentIndex)
             }
